@@ -42,7 +42,7 @@ export default function RootLayout({
             showAtBottom={false}
           />
 
-          <ThemeProvider attribute="class" defaultTheme="dark">
+          <ThemeProvider attribute="class" defaultTheme="light">
             {children}
           </ThemeProvider>
         </ClerkProvider>
