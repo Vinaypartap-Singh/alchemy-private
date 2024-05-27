@@ -95,7 +95,7 @@ export default function UpdateProfile() {
     <div className="bg-black text-white">
       <div className="max-w-4xl m-auto py-10 min-h-screen h-full">
         <h1 className="text-4xl">
-          Profile --{" "}
+          Profile --
           <span className="text-sm">Finish Setting-up your profile</span>
         </h1>
 

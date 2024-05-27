@@ -100,7 +100,7 @@ export default function SingleBlogInfo({ params }: any) {
                 className="h-10 w-10 rounded-full"
               />
               <h5 className="font-medium">
-                {userDetails.fullName}{" "}
+                {userDetails.fullName}
                 <span className="text-[#5b5b5b] bg-[#131313] p-2 rounded-lg ml-2">
                   {blog.publishedAt?.toDate().toDateString()}
                 </span>
