@@ -4,6 +4,7 @@ import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import NextTopLoader from "nextjs-toploader";
 import Header from "@/components/Custom/Header";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 const inter = Ubuntu({
   subsets: ["latin"],
@@ -35,13 +36,15 @@ export default function RootLayout({
             easing="ease"
             speed={200}
             shadow="0 0 10px #2299DD,0 0 5px #2299DD"
-            template='<div class="bar" role="bar"><div class="peg"></div></div> 
+            template='<div class="bar" role="bar"><div class="peg"></div></div>
   <div class="spinner" role="spinner"><div class="spinner-icon"></div></div>'
             zIndex={1600}
             showAtBottom={false}
           />
 
-          {children}
+          <ThemeProvider attribute="class" defaultTheme="dark">
+            {children}
+          </ThemeProvider>
         </ClerkProvider>
       </body>
     </html>

@@ -12,6 +12,7 @@ import Link from "next/link";
 import { Button } from "../ui/button";
 import Image from "next/image";
 import DropDownMenuCustom from "./_header_footer_components/header_dropdown";
+import DiscoverDropDown from "./_header_footer_components/discover_dropdown";
 
 interface MenuItems {
   title: String;
@@ -55,17 +56,13 @@ export default function Header() {
         </div>
         <div className="flex items-center space-x-6">
           <ul className="space-x-6 flex">
-            {menuItems.map(({ title, url, icon }, index) => {
-              return (
-                <Link
-                  href={`${url}`}
-                  key={index}
-                  className="flex items-center gap-2"
-                >
-                  {icon} {title}
-                </Link>
-              );
-            })}
+            <Link href={"/"} className="flex items-center gap-2">
+              <Home className="w-4 h-4" /> Home
+            </Link>
+            <DiscoverDropDown />
+            <Link href={"/project"} className="flex items-center gap-2">
+              <Target className="w-4 h-4" /> Project
+            </Link>
           </ul>
           <SignedOut>
             <div className="space-x-6">

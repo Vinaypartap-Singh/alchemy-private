@@ -60,7 +60,7 @@ export default function UpdateProfile() {
           return downloadURL;
         }
         return null;
-      }
+      },
     );
 
     return Promise.all(imageUploadPromises);
@@ -92,8 +92,8 @@ export default function UpdateProfile() {
   };
 
   return (
-    <div>
-      <div className="max-w-4xl m-auto py-10">
+    <div className="bg-black text-white">
+      <div className="max-w-4xl m-auto py-10 min-h-screen h-full">
         <h1 className="text-4xl">
           Profile --{" "}
           <span className="text-sm">Finish Setting-up your profile</span>
@@ -105,6 +105,7 @@ export default function UpdateProfile() {
             className="p-3 rounded-lg w-full border text-black"
             placeholder="A short Introduction"
             value={shortIntroduction}
+            required
           />
           <div>
             <JodiatEditor
@@ -113,7 +114,7 @@ export default function UpdateProfile() {
             />
           </div>
 
-          <h6>Social Media URL's</h6>
+          <h6>Social Media URL&apos;s</h6>
 
           <input
             className="p-3 rounded-lg w-full md:w-[48%] mr-2 border text-black"
@@ -159,8 +160,9 @@ export default function UpdateProfile() {
                   placeholder="Moodboard Image"
                   accept="image/png, image/gif, image/jpeg"
                   onChange={(e) => handleImageChange(e, imageKey)}
+                  required
                 />
-              )
+              ),
             )}
           </div>
 

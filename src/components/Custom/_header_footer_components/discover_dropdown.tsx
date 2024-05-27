@@ -8,24 +8,25 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { UserButton } from "@clerk/nextjs";
-import { PencilLine, User, UserCheck } from "lucide-react";
+import {
+  ChevronDown,
+  PencilLine,
+  SquareStack,
+  Telescope,
+  UserCheck,
+} from "lucide-react";
 import Link from "next/link";
 
-export default function DropDownMenuCustom() {
+export default function DiscoverDropDown() {
   const dropdownOptions = [
     {
-      title: "Your Profile",
-      url: "/profile",
-      icon: <User className="w-4 h-4" />,
+      title: "Categories",
+      url: "/discover/categories",
+      icon: <SquareStack className="w-4 h-4" />,
     },
     {
-      title: "Update Profile",
-      url: "/update-profile",
-      icon: <UserCheck className="w-4 h-4" />,
-    },
-    {
-      title: "Publish Blogs",
-      url: "/discover/publish-blogs",
+      title: "Posts",
+      url: "/discover",
       icon: <PencilLine className="w-4 h-4" />,
     },
   ];
@@ -33,14 +34,15 @@ export default function DropDownMenuCustom() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button>Profile</Button>
+        <Button
+          className="bg-transparent text-white p-0 flex items-center"
+          variant={"link"}
+        >
+          <Telescope className="w-5 h-5 mr-2" />
+          Discover <ChevronDown className="h-4 w-4" />
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="p-6 w-56 mr-16 bg-[#131313] text-white border-[#131313]">
-        <div className="flex items-center justify-between gap-3">
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
-          <UserButton />
-        </div>
-        <DropdownMenuSeparator className="mt-2 mb-4" />
         {dropdownOptions.map(({ title, url, icon }, index) => {
           return (
             <DropdownMenuItem className="cursor-pointer" asChild key={index}>
