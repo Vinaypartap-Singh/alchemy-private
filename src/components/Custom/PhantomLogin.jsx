@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useMemo, useCallback, useEffect, useState } from 'react';
 import {
     ConnectionProvider,
@@ -8,13 +10,25 @@ import {
     WalletModalProvider,
     WalletMultiButton,
 } from '@solana/wallet-adapter-react-ui';
-import { clusterApiUrl, Connection, PublicKey } from '@solana/web3.js';
+import { clusterApiUrl } from '@solana/web3.js';
 import wallets from '@/utils/phantom';
 import '@solana/wallet-adapter-react-ui/styles.css';
+import { useRouter } from 'next/navigation'; // Import useRouter hook
 
 const PhantomLogin = () => {
-    const { publicKey, wallet, connect, disconnect } = useWallet();
+    const { publicKey, connect, disconnect } = useWallet();
     const [isConnected, setIsConnected] = useState(false);
+    const router = useRouter(); // Initialize the useRouter hook
+
+    useEffect(() => {
+        if (publicKey) {
+            console.log('Connected with Public Key:', publicKey.toString());
+            // Store the public key in local storage
+            localStorage.setItem('publicKey', publicKey.toString());
+            // Redirect to the main page after successful login
+            router.push('/');
+        }
+    }, [publicKey, router]);
 
     const handleConnect = useCallback(async () => {
         try {
@@ -29,16 +43,12 @@ const PhantomLogin = () => {
         try {
             await disconnect();
             setIsConnected(false);
+            // Remove the public key from local storage
+            localStorage.removeItem('publicKey');
         } catch (err) {
             console.error('Disconnection error', err);
         }
     }, [disconnect]);
-
-    useEffect(() => {
-        if (publicKey) {
-            console.log('Connected with Public Key:', publicKey.toString());
-        }
-    }, [publicKey]);
 
     return (
         <div>

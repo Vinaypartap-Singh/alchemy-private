@@ -1,45 +1,49 @@
 "use client";
 import { Home, MenuIcon, Target, Telescope, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from 'next/navigation';
 import Link from "next/link";
 import { Button } from "../ui/button";
 import Image from "next/image";
 import DropDownMenuCustom from "./_header_footer_components/header_dropdown";
 import DiscoverDropDown from "./_header_footer_components/discover_dropdown";
 
-let SignedIn, SignedOut, UserButton;
-if (process.env.NODE_ENV === 'production') {
-  const Clerk = require('@clerk/clerk-react');
-  SignedIn = Clerk.SignedIn;
-  SignedOut = Clerk.SignedOut;
-  UserButton = Clerk.UserButton;
-} else {
-  SignedIn = ({ children }) => <>{children}</>;
-  SignedOut = ({ children }) => <>{children}</>;
-  UserButton = () => <div>User Button</div>;
-}
-
 export default function Header() {
   const [showMenu, setShowMenu] = useState(false);
+  const [publicKey, setPublicKey] = useState(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const storedPublicKey = localStorage.getItem('publicKey');
+    if (storedPublicKey) {
+      setPublicKey(storedPublicKey);
+    }
+  }, []);
+
+  const handleSignOut = () => {
+    localStorage.removeItem('publicKey');
+    setPublicKey(null);
+    router.push('/sign-in');
+  };
 
   const menuItems = [
     {
       title: "Home",
       url: "/",
-      icon: <Home className="w-4 h-4" />,
+      icon: <Home className="w-4 h-4" />
     },
     {
       title: "Discover",
       url: "/discover",
-      icon: <Telescope className="w-4 h-6" />,
+      icon: <Telescope className="w-4 h-6" />
     },
     {
       title: "Project",
       url: "/project",
-      icon: <Target className="w-4 h-4" />,
-    },
+      icon: <Target className="w-4 h-4" />
+    }
   ];
-
+  
   return (
     <div className="bg-black text-white p-4 sticky top-0 z-10">
       <div className="hidden lg:flex justify-between items-center">
@@ -64,21 +68,21 @@ export default function Header() {
               <Target className="w-4 h-4" /> Project
             </Link>
           </ul>
-          <SignedOut>
+          {publicKey ? (
             <div className="space-x-6">
-              <Button asChild variant={"outline"} className="text-black">
+              <span>Welcome, {publicKey}</span>
+              <Button variant="outline" onClick={handleSignOut}>Sign Out</Button>
+            </div>
+          ) : (
+            <div className="space-x-6">
+              <Button asChild variant="outline" className="text-black">
                 <Link href={"/sign-up"}>Create Account</Link>
               </Button>
               <Button asChild>
                 <Link href={"/sign-in"}>Log in</Link>
               </Button>
             </div>
-          </SignedOut>
-          <SignedIn>
-            <DropDownMenuCustom />
-            <UserButton />
-          </SignedIn>
-          {/* <ModeToggle /> */}
+          )}
         </div>
       </div>
       <div className="flex justify-between items-center lg:hidden relative">
@@ -98,7 +102,6 @@ export default function Header() {
           >
             <MenuIcon />
           </Button>
-          {/* <ModeToggle /> */}
         </div>
 
         <div
@@ -123,27 +126,23 @@ export default function Header() {
                   );
                 })}
               </ul>
-
-              {/* <ModeToggle /> */}
             </div>
 
-            <SignedOut>
+            {publicKey ? (
               <div className="space-x-6 mt-16">
-                <Button asChild variant={"outline"}>
+                <span>Welcome, {publicKey}</span>
+                <Button variant="outline" onClick={handleSignOut}>Sign Out</Button>
+              </div>
+            ) : (
+              <div className="space-x-6 mt-16">
+                <Button asChild variant="outline">
                   <Link href={"/sign-up"}>Create Account</Link>
                 </Button>
                 <Button asChild>
                   <Link href={"/sign-in"}>Log in</Link>
                 </Button>
               </div>
-            </SignedOut>
-
-            <SignedIn>
-              <Link className="text-black my-10" href={"/profile"}>
-                Your Profile
-              </Link>
-              <UserButton />
-            </SignedIn>
+            )}
           </div>
         </div>
       </div>
