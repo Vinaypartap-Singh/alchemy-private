@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../../../../firebase";
@@ -16,7 +16,8 @@ const noto = Noto_Serif({
   weight: ["400", "500", "600"],
 });
 
-export default function SingleBlogInfo({ params }: any) {
+export default function SingleBlogInfo({ params }) {
+  const router = useRouter();
   const id = params.id; // Get the post ID from the URL
   const [blog, setBlog] = useState(null);
   const [loading, setLoading] = useState(true);

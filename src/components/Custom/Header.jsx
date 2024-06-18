@@ -1,29 +1,28 @@
 "use client";
-
 import { Home, MenuIcon, Target, Telescope, X } from "lucide-react";
-import { ReactNode, useState } from "react";
-import {
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  UserButton,
-} from "@clerk/clerk-react";
+import { useState } from "react";
 import Link from "next/link";
 import { Button } from "../ui/button";
 import Image from "next/image";
 import DropDownMenuCustom from "./_header_footer_components/header_dropdown";
 import DiscoverDropDown from "./_header_footer_components/discover_dropdown";
 
-interface MenuItems {
-  title: String;
-  url: String;
-  icon: ReactNode;
+let SignedIn, SignedOut, UserButton;
+if (process.env.NODE_ENV === 'production') {
+  const Clerk = require('@clerk/clerk-react');
+  SignedIn = Clerk.SignedIn;
+  SignedOut = Clerk.SignedOut;
+  UserButton = Clerk.UserButton;
+} else {
+  SignedIn = ({ children }) => <>{children}</>;
+  SignedOut = ({ children }) => <>{children}</>;
+  UserButton = () => <div>User Button</div>;
 }
 
 export default function Header() {
-  const [showMenu, setShowMenu] = useState<Boolean>(false);
+  const [showMenu, setShowMenu] = useState(false);
 
-  const menuItems: MenuItems[] = [
+  const menuItems = [
     {
       title: "Home",
       url: "/",
@@ -40,6 +39,7 @@ export default function Header() {
       icon: <Target className="w-4 h-4" />,
     },
   ];
+
   return (
     <div className="bg-black text-white p-4 sticky top-0 z-10">
       <div className="hidden lg:flex justify-between items-center">

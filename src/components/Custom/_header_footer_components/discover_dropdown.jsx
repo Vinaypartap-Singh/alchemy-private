@@ -3,17 +3,13 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { UserButton } from "@clerk/nextjs";
 import {
   ChevronDown,
   PencilLine,
   SquareStack,
   Telescope,
-  UserCheck,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -43,15 +39,13 @@ export default function DiscoverDropDown() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="p-6 w-56 mr-16 bg-[#131313] text-white border-[#131313]">
-        {dropdownOptions.map(({ title, url, icon }, index) => {
-          return (
-            <DropdownMenuItem className="cursor-pointer" asChild key={index}>
-              <Link href={`${url}`} className="flex items-center gap-3">
-                {icon} {title}
-              </Link>
-            </DropdownMenuItem>
-          );
-        })}
+        {dropdownOptions.map(({ title, url, icon }, index) => (
+          <DropdownMenuItem className="cursor-pointer" asChild key={index}>
+            <Link href={`${url}`} className="flex items-center gap-3">
+              {icon} {title}
+            </Link>
+          </DropdownMenuItem>
+        ))}
       </DropdownMenuContent>
     </DropdownMenu>
   );

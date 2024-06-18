@@ -7,9 +7,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { UserButton } from "@clerk/nextjs";
 import { PencilLine, User, UserCheck } from "lucide-react";
 import Link from "next/link";
+
+let UserButton;
+if (process.env.NODE_ENV === 'production') {
+  UserButton = require('@clerk/nextjs').UserButton;
+} else {
+  UserButton = () => <div>User Button</div>;
+}
 
 export default function DropDownMenuCustom() {
   const dropdownOptions = [
@@ -41,15 +47,13 @@ export default function DropDownMenuCustom() {
           <UserButton />
         </div>
         <DropdownMenuSeparator className="mt-2 mb-4" />
-        {dropdownOptions.map(({ title, url, icon }, index) => {
-          return (
-            <DropdownMenuItem className="cursor-pointer" asChild key={index}>
-              <Link href={`${url}`} className="flex items-center gap-3">
-                {icon} {title}
-              </Link>
-            </DropdownMenuItem>
-          );
-        })}
+        {dropdownOptions.map(({ title, url, icon }, index) => (
+          <DropdownMenuItem className="cursor-pointer" asChild key={index}>
+            <Link href={`${url}`} className="flex items-center gap-3">
+              {icon} {title}
+            </Link>
+          </DropdownMenuItem>
+        ))}
       </DropdownMenuContent>
     </DropdownMenu>
   );
