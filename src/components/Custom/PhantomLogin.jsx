@@ -1,80 +1,55 @@
 "use client";
 
-import React, { useMemo, useCallback, useEffect, useState } from 'react';
-import {
-    ConnectionProvider,
-    WalletProvider,
-    useWallet,
-} from '@solana/wallet-adapter-react';
-import {
-    WalletModalProvider,
-    WalletMultiButton,
-} from '@solana/wallet-adapter-react-ui';
-import { clusterApiUrl } from '@solana/web3.js';
-import wallets from '@/utils/phantom';
-import '@solana/wallet-adapter-react-ui/styles.css';
-import { useRouter } from 'next/navigation'; // Import useRouter hook
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
-const PhantomLogin = () => {
-    const { publicKey, connect, disconnect } = useWallet();
-    const [isConnected, setIsConnected] = useState(false);
-    const router = useRouter(); // Initialize the useRouter hook
+export default function PhantomLogin() {
+  const [publicKey, setPublicKey] = useState(null);
+  const router = useRouter();
 
-    useEffect(() => {
-        if (publicKey) {
-            console.log('Connected with Public Key:', publicKey.toString());
-            // Store the public key in local storage
-            localStorage.setItem('publicKey', publicKey.toString());
-            // Redirect to the main page after successful login
-            router.push('/');
-        }
-    }, [publicKey, router]);
-
-    const handleConnect = useCallback(async () => {
+  useEffect(() => {
+    const connectPhantomWallet = async () => {
+      if (window.solana) {
         try {
-            await connect();
-            setIsConnected(true);
+          const response = await window.solana.connect();
+          setPublicKey(response.publicKey.toString());
         } catch (err) {
-            console.error('Connection error', err);
+          console.error("Phantom Wallet connection failed:", err);
         }
-    }, [connect]);
+      } else {
+        alert("Phantom Wallet not found. Please install it.");
+      }
+    };
 
-    const handleDisconnect = useCallback(async () => {
-        try {
-            await disconnect();
-            setIsConnected(false);
-            // Remove the public key from local storage
-            localStorage.removeItem('publicKey');
-        } catch (err) {
-            console.error('Disconnection error', err);
-        }
-    }, [disconnect]);
+    connectPhantomWallet();
+  }, []);
 
-    return (
-        <div>
-            <WalletMultiButton />
-            {isConnected ? (
-                <button onClick={handleDisconnect}>Disconnect</button>
-            ) : (
-                <button onClick={handleConnect}>Connect Phantom Wallet</button>
-            )}
-        </div>
-    );
-};
+  const handleLogin = async () => {
+    if (publicKey) {
+      const response = await fetch('/api/user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ publicKey }),
+      });
 
-const PhantomLoginWrapper = () => {
-    const network = clusterApiUrl('devnet'); // Change to 'mainnet-beta' for production
-    const endpoint = useMemo(() => network, [network]);
+      if (response.ok) {
+        const userData = await response.json();
+        localStorage.setItem('user', JSON.stringify(userData));
+        router.push('/');
+      } else {
+        alert('Login failed');
+      }
+    } else {
+      alert('Phantom Wallet not connected');
+    }
+  };
 
-    return (
-        <ConnectionProvider endpoint={endpoint}>
-            <WalletProvider wallets={wallets} autoConnect>
-                <WalletModalProvider>
-                    <PhantomLogin />
-                </WalletModalProvider>
-            </WalletProvider>
-        </ConnectionProvider>
-    );
-};
-
-export default PhantomLoginWrapper;
+  return (
+    <div className="min-h-screen h-full flex items-center justify-center">
+      <Button onClick={handleLogin}>Login with Phantom Wallet</Button>
+    </div>
+  );
+}

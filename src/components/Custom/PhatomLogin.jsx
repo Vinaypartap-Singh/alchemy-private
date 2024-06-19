@@ -13,10 +13,34 @@ import {
 import { clusterApiUrl } from '@solana/web3.js';
 import wallets from '@/utils/phantom';
 import '@solana/wallet-adapter-react-ui/styles.css';
+import { useRouter } from 'next/navigation'; // Import useRouter hook
 
 const PhantomLogin = () => {
     const { publicKey, connect, disconnect } = useWallet();
     const [isConnected, setIsConnected] = useState(false);
+    const [username, setUsername] = useState('');
+    const [profilePicture, setProfilePicture] = useState('');
+    const router = useRouter(); // Initialize the useRouter hook
+
+    const saveUserData = async () => {
+        await fetch('/api/user', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ publicKey: publicKey.toString(), username, profilePicture }),
+        });
+    };
+
+    useEffect(() => {
+        if (publicKey) {
+            console.log('Connected with Public Key:', publicKey.toString());
+            // Save the user data to the SQLite database
+            saveUserData();
+            // Redirect to the main page after successful login
+            router.push('/');
+        }
+    }, [publicKey, router]);
 
     const handleConnect = useCallback(async () => {
         try {
@@ -36,12 +60,6 @@ const PhantomLogin = () => {
         }
     }, [disconnect]);
 
-    useEffect(() => {
-        if (publicKey) {
-            console.log('Connected with Public Key:', publicKey.toString());
-        }
-    }, [publicKey]);
-
     return (
         <div>
             <WalletMultiButton />
@@ -50,6 +68,24 @@ const PhantomLogin = () => {
             ) : (
                 <button onClick={handleConnect}>Connect Phantom Wallet</button>
             )}
+            <div>
+                <label>
+                    Username:
+                    <input 
+                        type="text" 
+                        value={username} 
+                        onChange={(e) => setUsername(e.target.value)} 
+                    />
+                </label>
+                <label>
+                    Profile Picture URL:
+                    <input 
+                        type="text" 
+                        value={profilePicture} 
+                        onChange={(e) => setProfilePicture(e.target.value)} 
+                    />
+                </label>
+            </div>
         </div>
     );
 };

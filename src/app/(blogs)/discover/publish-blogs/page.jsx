@@ -1,40 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import dynamic from "next/dynamic";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { db, storage } from "../../../../../firebase";
-import { collection, addDoc, doc, serverTimestamp } from "firebase/firestore";
-import { Chonburi } from "next/font/google";
-import { useUser } from "@clerk/nextjs";
+import { storage } from "../../../../../firebase";
 import { useRouter } from "next/navigation";
 
 const JodiatEditor = dynamic(() => import("jodit-react"), { ssr: false });
 
-export default function UpdateProfile() {
-  const user = useUser();
+export default function PublishBlog() {
   const router = useRouter();
   const [content, setContent] = useState("");
   const [blogTitle, setBlogTitle] = useState("");
-  const [featuredImage, setFeaturedImage] = useState<null | any>(null);
-  const [imageURL, setImageURL] = useState<null | any>(null);
+  const [featuredImage, setFeaturedImage] = useState(null);
+  const [imageURL, setImageURL] = useState(null);
   const [uploading, setUploading] = useState(false);
-  const fullName = user.user?.fullName;
-  const userEmail = user.user?.emailAddresses[0].emailAddress;
-  const userPhoneNumber = user.user?.phoneNumbers[0].phoneNumber;
-  const currentUserId = user.user?.id;
-  const userProfileImage = user.user?.imageUrl;
+  const [user, setUser] = useState(null);
 
-  const userInfo = {
-    fullName: fullName,
-    userEmail: userEmail,
-    userPhoneNumber: userPhoneNumber,
-    userId: currentUserId,
-    profileImage: userProfileImage,
-  };
+  useEffect(() => {
+    const userData = JSON.parse(localStorage.getItem('user'));
+    if (userData) {
+      setUser(userData);
+    }
+  }, []);
 
-  const handleImageChange = (e: any) => {
+  const handleImageChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       setFeaturedImage(e.target.files[0]);
     }
@@ -55,35 +46,48 @@ export default function UpdateProfile() {
       } catch (error) {
         console.log(error);
         setUploading(false);
-      } // steps to uplaod
-      //1. Image Ref 2.get uploadBytes 3.getDownloadURL
+      }
     }
   };
 
-  const publishBlog = async (image: any) => {
-    if (blogTitle == "" || content == "" || featuredImage == null) {
+  const publishBlog = async (image) => {
+    if (blogTitle === "" || content === "" || featuredImage === null) {
       alert("Please fill all the information related to blogs");
     } else {
       const blogPost = {
         title: blogTitle,
         content: content,
         featuredImage: image,
-        userinfo: userInfo,
-        publishedAt: serverTimestamp(),
+        userinfo: user,
+        publishedAt: new Date().toISOString(),
       };
       try {
-        const docRef = await addDoc(collection(db, "posts"), blogPost);
-        alert("Blog Added");
-        router.push("/");
+        const response = await fetch('/api/blog', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(blogPost),
+        });
+
+        if (response.ok) {
+          alert('Blog Added');
+          router.push('/');
+        } else {
+          const errorData = await response.json();
+          console.error('Error uploading blog', errorData);
+          alert('Error uploading blog');
+        }
       } catch (error) {
-        console.log("Error uploading blog", error);
+        console.log('Error uploading blog', error);
+        alert('Error uploading blog');
       }
     }
   };
 
   return (
     <div className="bg-black text-white">
-      {user.isLoaded ? (
+      {user ? (
         <div className="max-w-4xl m-auto py-10 min-h-screen h-full">
           <h1 className="text-4xl">
             Blog --{" "}

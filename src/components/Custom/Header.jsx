@@ -1,7 +1,7 @@
 "use client";
 import { Home, MenuIcon, Target, Telescope, X } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "../ui/button";
 import Image from "next/image";
@@ -10,20 +10,20 @@ import DiscoverDropDown from "./_header_footer_components/discover_dropdown";
 
 export default function Header() {
   const [showMenu, setShowMenu] = useState(false);
-  const [publicKey, setPublicKey] = useState(null);
+  const [user, setUser] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
-    const storedPublicKey = localStorage.getItem('publicKey');
-    if (storedPublicKey) {
-      setPublicKey(storedPublicKey);
+    const userData = JSON.parse(localStorage.getItem('user'));
+    if (userData) {
+      setUser(userData);
     }
   }, []);
 
   const handleSignOut = () => {
-    localStorage.removeItem('publicKey');
-    setPublicKey(null);
-    router.push('/sign-in');
+    localStorage.removeItem('user');
+    setUser(null);
+    //router.push('/sign-in');
   };
 
   const menuItems = [
@@ -43,7 +43,7 @@ export default function Header() {
       icon: <Target className="w-4 h-4" />
     }
   ];
-  
+
   return (
     <div className="bg-black text-white p-4 sticky top-0 z-10">
       <div className="hidden lg:flex justify-between items-center">
@@ -68,9 +68,18 @@ export default function Header() {
               <Target className="w-4 h-4" /> Project
             </Link>
           </ul>
-          {publicKey ? (
-            <div className="space-x-6">
-              <span>Welcome, {publicKey}</span>
+          {user ? (
+            <div className="space-x-6 flex items-center">
+              {user.profilePicture && (
+                <Image
+                  src={user.profilePicture}
+                  alt="Profile Picture"
+                  height={40}
+                  width={40}
+                  className="rounded-full"
+                />
+              )}
+              <span>Welcome, {user.username || user.publicKey}</span>
               <Button variant="outline" onClick={handleSignOut}>Sign Out</Button>
             </div>
           ) : (
@@ -128,14 +137,25 @@ export default function Header() {
               </ul>
             </div>
 
-            {publicKey ? (
-              <div className="space-x-6 mt-16">
-                <span>Welcome, {publicKey}</span>
-                <Button variant="outline" onClick={handleSignOut}>Sign Out</Button>
-              </div>
+            {user ? (
+              <>
+                <div className="flex flex-col items-end mt-10 space-y-3">
+                  {user.profilePicture && (
+                    <Image
+                      src={user.profilePicture}
+                      alt="Profile Picture"
+                      height={40}
+                      width={40}
+                      className="rounded-full"
+                    />
+                  )}
+                  <span>Welcome, {user.username || user.publicKey}</span>
+                  <Button variant="outline" onClick={handleSignOut}>Sign Out</Button>
+                </div>
+              </>
             ) : (
-              <div className="space-x-6 mt-16">
-                <Button asChild variant="outline">
+              <div className="space-x-6 mt-10">
+                <Button asChild variant="outline" className="text-black">
                   <Link href={"/sign-up"}>Create Account</Link>
                 </Button>
                 <Button asChild>
