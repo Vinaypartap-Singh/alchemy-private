@@ -4,34 +4,28 @@ import Header from "@/components/Custom/Header";
 import Link from "next/link";
 import Image from "next/image";
 import ProfileInfo from "./_components/ProfileInfo";
-import { useUser } from "@clerk/nextjs";
 import MoodboardCard from "./_components/MoodBoardCard";
 import { useEffect, useState } from "react";
-import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../../../firebase";
 
 export default function ProfilePage() {
-  const user = useUser();
-  const userLoaded = user.isLoaded;
-  const userId = user?.user?.id;
-
-  const [userData, setUserData] = useState<any>();
+  const [user, setUser] = useState(null);
+  const [userData, setUserData] = useState(null);
 
   useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+    setUser(storedUser);
+
     const getUserInfo = async () => {
-      const docRef = doc(db, "profiles", `${userId}`);
-
-      const docSnap = await getDoc(docRef);
-
-      if (docSnap.exists()) {
-        setUserData(docSnap.data());
-      }
+      const response = await fetch(`/api/user/${storedUser.publicKey}`);
+      const data = await response.json();
+      setUserData(data);
     };
 
-    if (userLoaded) {
+    if (storedUser) {
       getUserInfo();
     }
-  }, [userLoaded, userId]);
+  }, []);
 
   const userSocial = [
     {
@@ -50,7 +44,7 @@ export default function ProfilePage() {
 
   return (
     <div className="bg-black text-white">
-      {user.isLoaded ? (
+      {user ? (
         <div>
           <Header />
 
@@ -72,7 +66,7 @@ export default function ProfilePage() {
 
                   <div className="mt-28 space-y-4">
                     <h1 className="text-3xl font-semibold">Moodboard</h1>
-                    <h4>{userData.updatedTime.toDate().toString()}</h4>
+                    <h4>{new Date(userData.updatedTime).toString()}</h4>
 
                     <div className="flex flex-wrap justify-between gap-3">
                       <MoodboardCard data={userData} />

@@ -1,55 +1,42 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import React, { useMemo, useEffect } from 'react';
+import {
+    ConnectionProvider,
+    WalletProvider,
+    useWallet,
+} from '@solana/wallet-adapter-react';
+import { WalletModalProvider, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets';
+import { clusterApiUrl } from '@solana/web3.js';
 
-export default function PhantomLogin() {
-  const [publicKey, setPublicKey] = useState(null);
-  const router = useRouter();
+import '@solana/wallet-adapter-react-ui/styles.css';
 
-  useEffect(() => {
-    const connectPhantomWallet = async () => {
-      if (window.solana) {
-        try {
-          const response = await window.solana.connect();
-          setPublicKey(response.publicKey.toString());
-        } catch (err) {
-          console.error("Phantom Wallet connection failed:", err);
+const PhantomLogin = ({ onClose }) => {
+    const endpoint = useMemo(() => clusterApiUrl('mainnet-beta'), []);
+    const wallets = useMemo(() => [new PhantomWalletAdapter()], []);
+    const { connected, publicKey } = useWallet();
+
+    useEffect(() => {
+        if (connected) {
+            localStorage.setItem('user', JSON.stringify({ publicKey: publicKey.toString() }));
+            onClose(); // Close the login modal
+            window.location.reload(); // Reload to update the state
         }
-      } else {
-        alert("Phantom Wallet not found. Please install it.");
-      }
-    };
+    }, [connected, publicKey, onClose]);
 
-    connectPhantomWallet();
-  }, []);
+    return (
+        <div className="login-modal">
+            <ConnectionProvider endpoint={endpoint}>
+                <WalletProvider wallets={wallets} autoConnect>
+                    <WalletModalProvider>
+                        <button onClick={onClose}>Close</button>
+                        <WalletMultiButton />
+                    </WalletModalProvider>
+                </WalletProvider>
+            </ConnectionProvider>
+        </div>
+    );
+};
 
-  const handleLogin = async () => {
-    if (publicKey) {
-      const response = await fetch('/api/user', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ publicKey }),
-      });
-
-      if (response.ok) {
-        const userData = await response.json();
-        localStorage.setItem('user', JSON.stringify(userData));
-        router.push('/');
-      } else {
-        alert('Login failed');
-      }
-    } else {
-      alert('Phantom Wallet not connected');
-    }
-  };
-
-  return (
-    <div className="min-h-screen h-full flex items-center justify-center">
-      <Button onClick={handleLogin}>Login with Phantom Wallet</Button>
-    </div>
-  );
-}
+export default PhantomLogin;
